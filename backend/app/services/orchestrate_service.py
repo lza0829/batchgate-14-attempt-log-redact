@@ -6,8 +6,10 @@ from app.config import FIXTURES_DIR
 from app.db import connect
 from app.engines.dependency import ready_by_upstream_success, topological_layers
 from app.engines.job_runner import run_fixture_job
+from app.engines.redaction import redact_value
 from app.repositories import jobs as jobs_repo
 from app.repositories import orchestrations as orch_repo
+from app.repositories import redaction as redaction_repo
 from app.repositories import watermarks as wm_repo
 
 
@@ -37,6 +39,7 @@ def run_orchestration() -> dict[str, Any]:
     conn = connect()
     try:
         jobs = [j for j in jobs_repo.list_jobs(conn) if j["enabled"]]
+        rules = redaction_repo.get_rules(conn)
         orch_id = orch_repo.create_orchestration(conn)
         success_names: set[str] = set()
         skipped = 0
@@ -54,7 +57,7 @@ def run_orchestration() -> dict[str, Any]:
                         job_id=job["id"],
                         attempt_no=1,
                         status="skipped_dep",
-                        detail={"reason": reason},
+                        detail=redact_value({"reason": reason}, rules),
                     )
                     skipped += 1
                     continue
@@ -66,7 +69,7 @@ def run_orchestration() -> dict[str, Any]:
                         job_id=job["id"],
                         attempt_no=1,
                         status="success",
-                        detail=result,
+                        detail=redact_value(result, rules),
                     )
                     wm_repo.set_watermark(
                         conn, job["id"], result["watermark_ts"], result["artifact_rows"]
@@ -80,7 +83,7 @@ def run_orchestration() -> dict[str, Any]:
                         job_id=job["id"],
                         attempt_no=1,
                         status="failed",
-                        detail={"error": str(exc)},
+                        detail=redact_value({"error": str(exc)}, rules),
                     )
                     failed += 1
 
@@ -96,6 +99,7 @@ def run_orchestration() -> dict[str, Any]:
                 "SELECT COUNT(*) c FROM watermarks WHERE watermark_ts IS NOT NULL"
             ).fetchone()["c"],
             "layer_count": len(layers),
+            "redaction_rules": len(rules),
         }
         status = "ok" if failed == 0 else "partial"
         orch_repo.finish_orchestration(conn, orch_id, status, report)

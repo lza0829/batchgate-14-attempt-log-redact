@@ -1,7 +1,7 @@
 {
   "watermark_ts": "2026-11-10T17:30:00Z",
   "rows": [
-    {"customer_id": "C-1", "name": "Ada"},
-    {"customer_id": "C-2", "name": "Ben"}
+    {"customer_id": "C-1", "name": "Ada", "phone": "13800001111"},
+    {"customer_id": "C-2", "name": "Ben", "phone": "13900002222"}
   ]
 }

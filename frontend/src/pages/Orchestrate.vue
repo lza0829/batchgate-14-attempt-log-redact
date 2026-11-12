@@ -35,7 +35,7 @@ onMounted(async () => {
         skipped {{ last.report?.skipped }} /
         attempts {{ last.report?.attempt_count }}
       </p>
-      <p class="mono muted">watermarked_jobs={{ last.report?.watermarked_jobs }} layers={{ last.report?.layer_count }}</p>
+      <p class="mono muted">watermarked_jobs={{ last.report?.watermarked_jobs }} layers={{ last.report?.layer_count }} 脱敏规则={{ last.report?.redaction_rules }}</p>
       <p>
         <router-link :to="{ path: '/attempts', query: { orchestration_id: last.id } }">查看本次尝试 →</router-link>
         ·

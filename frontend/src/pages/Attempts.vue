@@ -14,6 +14,10 @@ async function load() {
     rows.value = await getJSON(`/api/attempts${q}`)
   } catch (e) { err.value = String(e.message || e) }
 }
+function exportUrl() {
+  const q = orchId.value != null ? `?orchestration_id=${orchId.value}` : ''
+  return `/api/attempts/export${q}`
+}
 onMounted(async () => {
   try {
     orchList.value = await getJSON('/api/orchestrations')
@@ -27,7 +31,7 @@ watch(orchId, load)
 <template>
   <div class="page">
     <h1>尝试记录</h1>
-    <p class="muted">每次作业尝试的状态：success / failed / skipped_dep。</p>
+    <p class="muted">每次作业尝试的状态：success / failed / skipped_dep。详情在写入时已按<router-link to="/redaction">脱敏规则</router-link>处理，页面与导出均无明文敏感值。</p>
     <p v-if="err" class="tag danger">{{ err }}</p>
     <div class="panel">
       <label>
@@ -38,6 +42,7 @@ watch(orchId, load)
         </select>
       </label>
       <span class="muted" style="margin-left:0.75rem">共 {{ rows.length }} 条</span>
+      <a :href="exportUrl()" style="margin-left:0.75rem"><button type="button">导出（含清单）</button></a>
     </div>
     <div class="panel">
       <table>

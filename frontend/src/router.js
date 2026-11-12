@@ -5,6 +5,7 @@ import Orchestrate from './pages/Orchestrate.vue'
 import Attempts from './pages/Attempts.vue'
 import Watermarks from './pages/Watermarks.vue'
 import Settings from './pages/Settings.vue'
+import Redaction from './pages/Redaction.vue'
 
 export default createRouter({
   history: createWebHistory(),
@@ -15,5 +16,6 @@ export default createRouter({
     { path: '/attempts', component: Attempts },
     { path: '/watermarks', component: Watermarks },
     { path: '/settings', component: Settings },
+    { path: '/redaction', component: Redaction },
   ],
 })
